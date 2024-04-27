@@ -1,0 +1,456 @@
+@font-face {
+    font-family: 'DINCondensed-Bold';
+    src: url('@/assets/Font/DIN-Condensed-Bold.ttf');
+}
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+menu,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    // border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+sub {
+    vertical-align: sub !important;
+    font-size: smaller !important;
+}
+
+sup {
+    vertical-align: super !important;
+    font-size: smaller !important;
+}
+
+menu,
+ol,
+ul {
+    list-style: none;
+}
+
+* {
+    font-family: PingFang SC Microsoft YaHei !important;
+    box-sizing: border-box;
+    // user-select: none !important;
+}
+
+// 在html富文本的strong标签下的span都设置bold
+strong > span {
+    font-weight: bold;
+}
+
+body {
+    border-color: #ccc;
+    font-family: PingFang SC Microsoft YaHei;
+}
+
+.content-box {
+    min-height: calc(100vh - 70px);
+}
+
+.ant-picker {
+    width: 100%;
+}
+
+.ant-picker-cell-range-start,
+.ant-picker-cell-range-end {
+    .ant-picker-cell-inner {
+        background-color: #384989 !important;
+    }
+}
+
+#comment-table .ant-table-thead > tr > th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background: #ebedf3;
+    color: #333333;
+    font-weight: 400;
+}
+
+#comment-table {
+    .ant-table {
+        scrollbar-color: auto;
+        .ant-table-container {
+            .ant-table-content {
+                .ant-table-cell {
+                    vertical-align: middle;
+                }
+                .zIndex.ant-table-cell-row-hover {
+                    z-index: 3;
+                }
+                // 滚动条整体部分
+                &::-webkit-scrollbar {
+                    width: 6px; //y轴滚动条粗细
+                    height: 6px; //x轴滚动条粗细
+                    // border-bottom: 1px solid #7b7b7b;
+                }
+                //滚动条里面的小方块，能上下左右移动（取决于是垂直滚动条还是水平滚动条）
+                &::-webkit-scrollbar-thumb {
+                    border-radius: 3px;
+                    background: #ddd;
+                }
+                //滚动条的轨道（里面装有thumb）滚动槽
+                &::-webkit-scrollbar-track {
+                    border-radius: 3px;
+                    background: #fff; //滚动槽背景色
+                }
+            }
+        }
+    }
+}
+
+#app,
+.ant-modal-content {
+    .table-pagination {
+        margin: 40px 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ant-pagination-item,
+        .ant-pagination-prev,
+        .ant-pagination-next {
+            // width: 22px;
+            height: 22px;
+            min-width: 22px;
+            min-height: 22px;
+            border-radius: 2px;
+            // opacity: 0.15;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            line-height: 20px;
+
+            a {
+                font-size: 12px;
+                color: #333333;
+                font-weight: 400;
+            }
+        }
+
+        .ant-pagination-item-active {
+            background: #384989;
+
+            a {
+                font-size: 12px;
+                color: #fff;
+            }
+        }
+
+        .ant-pagination-jump-next,
+        .ant-pagination-jump-prev {
+            height: 22px;
+            min-height: 22px;
+            line-height: 20px;
+        }
+
+        .ant-pagination-total-text {
+            height: 22px;
+            line-height: 22px;
+        }
+
+        .table-pagination-total {
+            margin-left: 10px;
+            font-size: 12px;
+            color: #333333;
+        }
+    }
+
+    .search_btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:disabled {
+            background: rgb(56 73 137 / 40%) !important;
+            color: #fff;
+        }
+    }
+
+    .reset_btn {
+        width: 100%;
+
+        &:disabled {
+            color: #999999 !important;
+            background: #ffffff !important;
+            border: 1px solid #dddddd !important;
+        }
+    }
+
+    .down_btn {
+        width: 101px;
+        height: 36px;
+        color: #384989;
+        background: #ffffff;
+        border-radius: 4px;
+        border: 1px solid #384989;
+
+        &:hover {
+            color: #12215b !important;
+            border: 1px solid #12215b !important;
+        }
+
+        &:disabled {
+            background: #ffffff !important;
+            color: #999999 !important;
+            border: 1px solid #dddddd !important;
+        }
+    }
+
+    .release_btn {
+        width: 101px;
+    }
+
+    .ant-upload-select {
+        border: none;
+    }
+
+    .ant-table-wrapper .ant-table-tbody > tr.ant-table-row-selected > td {
+        background-color: #fff;
+    }
+
+    .ant-table-wrapper .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+        background-color: #fafafa;
+    }
+
+    // .ant-input:hover,
+    // .ant-input:focus,
+    .ant-select:hover .ant-select-selector,
+    .ant-select-focused.ant-select .ant-select-selector,
+    .ant-picker:hover,
+    .ant-picker-focused,
+    .ant-input-affix-wrapper:hover,
+    .ant-input-affix-wrapper:focus,
+    .ant-input-affix-wrapper-focused {
+        border-color: #263363 !important;
+        box-shadow: none !important;
+    }
+}
+
+.ant-modal-content {
+    padding: 20px 0 !important;
+
+    .ant-modal-header {
+        padding: 0 24px !important;
+    }
+
+    .ant-modal-body {
+        margin-bottom: 30px;
+        padding-top: 30px !important;
+        border-top: 1px solid #eee;
+    }
+
+    .ant-modal-footer {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+// #comment-table .ant-table-tbody>tr>td {
+//     padding: 30px 0;
+
+// }
+
+#userTabBox {
+    padding-bottom: 60px;
+    background: #ffffff;
+    border-radius: 8px;
+
+    .ant-tabs-nav-wrap {
+        .ant-tabs-tab {
+            margin: 0 0 0 46px;
+
+            .ant-tabs-tab-btn {
+                font-size: 16px;
+                color: #333333;
+            }
+        }
+
+        .ant-tabs-tab-active {
+            .ant-tabs-tab-btn {
+                font-size: 16px;
+                font-weight: 700;
+                color: #5579ff;
+            }
+        }
+    }
+}
+
+.avatar-uploader {
+    .ant-upload {
+        overflow: hidden;
+    }
+}
+
+.img_crop {
+    .ant-modal-content {
+        .ant-modal-body {
+            .img-crop-control {
+                display: none;
+            }
+        }
+
+        .ant-modal-footer {
+            .ant-btn-default {
+                width: 76px;
+                height: 36px;
+                background: #ffffff;
+                border-radius: 4px;
+                border: 1px solid #dddddd;
+                color: #333333;
+
+                &:hover {
+                    border: 1px solid #384989;
+                }
+            }
+
+            .ant-btn-primary {
+                width: 76px;
+                height: 36px;
+                background: #384989;
+                border-radius: 4px;
+
+                &:hover {
+                    background: #12215b;
+                }
+            }
+        }
+    }
+}
+
+//修改input输入内容后背景色（因只读样式无法更改，解决方法：修改透明度）
+input:-internal-autofill-previewed {
+    // -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
+input:-internal-autofill-selected {
+    // -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
+.BoxJitter {
+    animation-delay: 0s;
+    animation-name: shock;
+    animation-duration: 0.1s;
+    animation-iteration-count: 3;
+    animation-direction: normal;
+    animation-timing-function: linear;
+}
+
+@keyframes shock {
+    0% {
+        margin-left: 0px;
+        margin-right: 5px;
+        margin-top: 0px;
+    }
+
+    100% {
+        margin-left: 5px;
+        margin-right: 0px;
+        margin-top: 5px;
+    }
+}
+
+.editor-component-title {
+    .tox-tinymce {
+        border-radius: 6px;
+    }
+}
+
+.breadcrumb_link {
+    cursor: pointer;
+}
+.ml-10 {
+    margin-left: 10px !important;
+}
+.mb-0 {
+    margin-bottom: 0px !important;
+}
+.w-315 {
+    width: 315px !important;
+}
+.w-200 {
+    width: 200px !important;
+}

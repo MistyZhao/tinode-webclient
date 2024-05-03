@@ -16,7 +16,7 @@ import Styles from "@/assets/styles/home.module.scss";
 const { Sider, Header, Content } = Layout;
 const HomeIndex: React.FC = () => {
  
-  const navigateTo = useNavigate();
+  // const navigateTo = useNavigate();
 
   // 侧边栏折叠或收起状态
   const [collapsed, setCollapsed] = useState(false);

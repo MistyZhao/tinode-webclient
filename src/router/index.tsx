@@ -44,8 +44,9 @@ const routes = [
             </Suspense >,
         // </AuthorVerify>,
         children: [
+            
             {//首页
-                path: "/",
+                path: "/home",
                 element: <HomePage />,
             },
             {

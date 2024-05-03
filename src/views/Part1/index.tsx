@@ -18,7 +18,7 @@ import Styles from "@/assets/styles/home.module.scss";
 const { Sider, Header, Content } = Layout;
 const HomeIndex: React.FC = () => {
   
-  const navigateTo = useNavigate();
+  // const navigateTo = useNavigate();
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
   const from = searchParams.get("from");

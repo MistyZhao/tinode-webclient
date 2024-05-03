@@ -10,12 +10,15 @@ const TestDropdownList = () => {
 
     useEffect(() => {
         // 在组件挂载时获取下拉框的选项数据
-        fetchOptions();
+        // fetchOptions();
     }, []);
 
+    // http://localhost:6060
     const fetchOptions = async () => {
         try {
-            const response = await fetch('http://localhost:6060/api/gettestlist'); // 替换为你的接口URL
+            const response = await fetch('/api/gettestlist',{
+                mode:'cors'
+            }); // 替换为你的接口URL
             const data = await response.json();
             console.log(data);
             const processdata = data.data.map((item) => ({
@@ -36,7 +39,7 @@ const TestDropdownList = () => {
 
     return (
         <div>
-            <select  style={{ width: '200px' }} value={selectedOption} onChange={handleSelect}>
+            <select  style={{ width: '220px' }} value={selectedOption} onChange={handleSelect}>
                 <option value=""></option>
                 {options.map((option) => (
                     <option key={option.id} value={option.value}>

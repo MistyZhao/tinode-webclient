@@ -8,7 +8,7 @@ import Attachment from './attachment.jsx';
 import LetterTile from './letter-tile.jsx';
 import ReceivedMarker from './received-marker.jsx'
 
-import { fullFormatter } from '../lib/formatters.js';
+import { fullFormatter } from '../lib/formatters.jsx';
 import { sanitizeUrl } from '../lib/utils.js';
 
 class BaseChatMessage extends React.PureComponent {

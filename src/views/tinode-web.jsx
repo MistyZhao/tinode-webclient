@@ -1,29 +1,52 @@
 // The top-level class to hold all functionality together.
-import React, { Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
+
+import { Layout, Button, theme } from "antd";
+const { Sider, Header, Content } = Layout;
+import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+
+} from "@ant-design/icons";
+import Styles from "@/assets/styles/home.module.scss";
+import { getAssetsImage } from "@/utils/global";
+
 import { FormattedMessage, defineMessages, injectIntl } from 'react-intl';
 
 import { initializeApp as firebaseInitApp } from 'firebase/app';
-import { getMessaging as firebaseGetMessaging, getToken as firebaseGetToken,
-  deleteToken as firebaseDelToken, onMessage as firebaseOnMessage } from 'firebase/messaging';
+import {
+  getMessaging as firebaseGetMessaging, getToken as firebaseGetToken,
+  deleteToken as firebaseDelToken, onMessage as firebaseOnMessage
+} from 'firebase/messaging';
 
 import { Drafty, Tinode } from 'tinode-sdk';
 
-import Alert from '../widgets/alert.jsx';
-import ContextMenu from '../widgets/context-menu.jsx';
-import ForwardDialog from '../widgets/forward-dialog.jsx';
-import CallIncoming from '../widgets/call-incoming.jsx';
-const PhoneCountrySelector = React.lazy(_ => import('../widgets/phone-country-selector.jsx'));
+// import Home from "./HomePage/index.tsx"
+import HomeView from "./HomePage/Home.jsx"
+
+// import Alert from '../widgets/alert.jsx';
+// import ContextMenu from '../widgets/context-menu.jsx';
+// import ForwardDialog from '../widgets/forward-dialog.jsx';
+// import CallIncoming from '../widgets/call-incoming.jsx';
+// const PhoneCountrySelector = React.lazy(_ => import('../widgets/phone-country-selector.jsx'));
 
 import InfoView from './info-view.jsx';
 import MessagesView from './messages-view.jsx';
 import SidepanelView from './sidepanel-view.jsx';
-// import TestView from './test-view.jsx';
+import TestView from './test-view.jsx';
 
-import { API_KEY, APP_NAME, DEFAULT_P2P_ACCESS_MODE, FORWARDED_PREVIEW_LENGTH, LOGGING_ENABLED,
-  MEDIA_BREAKPOINT } from '../configTinode.js';
-import { CALL_STATE_NONE, CALL_STATE_OUTGOING_INITATED,
-         CALL_STATE_INCOMING_RECEIVED, CALL_STATE_IN_PROGRESS,
-         CALL_HEAD_STARTED }  from '../constants.js';
+import {
+  API_KEY, APP_NAME, DEFAULT_P2P_ACCESS_MODE, FORWARDED_PREVIEW_LENGTH, LOGGING_ENABLED,
+  MEDIA_BREAKPOINT
+} from '../config.js';
+import {
+  CALL_STATE_NONE, CALL_STATE_OUTGOING_INITATED,
+  CALL_STATE_INCOMING_RECEIVED, CALL_STATE_IN_PROGRESS,
+  CALL_HEAD_STARTED
+} from '../constants.js';
 import { PACKAGE_VERSION } from '../version.js';
 import { base64ReEncode, makeImageUrl } from '../lib/blob-helpers.js';
 import { detectServerAddress, isLocalHost, isSecureConnection } from '../lib/host-name.js';
@@ -94,6 +117,7 @@ const messages = defineMessages({
 });
 
 class TinodeWeb extends React.Component {
+
   constructor(props) {
     super(props);
 
@@ -165,7 +189,7 @@ class TinodeWeb extends React.Component {
     this.handlePasswordResetRequest = this.handlePasswordResetRequest.bind(this);
     this.handleResetPassword = this.handleResetPassword.bind(this);
     this.handleContextMenuAction = this.handleContextMenuAction.bind(this);
-    this.handleShowCountrySelector =  this.handleShowCountrySelector.bind(this);
+    this.handleShowCountrySelector = this.handleShowCountrySelector.bind(this);
 
     this.handleShowForwardDialog = this.handleShowForwardDialog.bind(this);
     this.handleHideForwardDialog = this.handleHideForwardDialog.bind(this);
@@ -196,6 +220,7 @@ class TinodeWeb extends React.Component {
     const persist = !!LocalStorageUtil.getObject('keep-logged-in');
 
     return {
+
       connected: false,
       // Connected and subscribed to 'me'
       ready: false,
@@ -263,7 +288,7 @@ class TinodeWeb extends React.Component {
 
       // Modal alert dialog.
       alertVisible: false,
-      testVisible:true, // by ssrs
+      testVisible: true, // by ssrs
       alertParams: {},
 
       // Chats as shown in the ContactsView
@@ -283,6 +308,7 @@ class TinodeWeb extends React.Component {
   }
 
   componentDidMount() {
+
     window.addEventListener('resize', this.handleResize);
     this.handleOnlineOn = _ => { this.handleOnline(true); }
     window.addEventListener('online', this.handleOnlineOn);
@@ -329,7 +355,7 @@ class TinodeWeb extends React.Component {
 
       const token = this.state.persist ? LocalStorageUtil.getObject('auth-token') : undefined;
       if (token) {
-        this.setState({autoLogin: true});
+        this.setState({ autoLogin: true });
 
         // When reading from storage, date is returned as string.
         token.expires = new Date(token.expires);
@@ -348,15 +374,16 @@ class TinodeWeb extends React.Component {
       // Maybe navigate to home screen.
       if (!['cred', 'reset', 'register'].includes(parsedNav.path[0])) {
         // Save possible topic name.
-        this.setState({requestedTopic: parsedNav.path[1]});
+        this.setState({ requestedTopic: parsedNav.path[1] });
         const path = parsedNav.params && parsedNav.params.cred_done ?
-          HashNavigation.addUrlParam('', 'cred_done', parsedNav.params.cred_done):
+          HashNavigation.addUrlParam('', 'cred_done', parsedNav.params.cred_done) :
           '';
         HashNavigation.navigateTo(path);
       } else {
         this.handleHashRoute();
       }
     });
+
   }
 
   componentWillUnmount() {
@@ -369,8 +396,10 @@ class TinodeWeb extends React.Component {
 
   // Setup transport (usually websocket) and server address. This will terminate connection with the server.
   static tnSetup(serverAddress, secureConnection, transport, locale, persistentCache, onSetupCompleted) {
-    const tinode = new Tinode({appName: APP_NAME, host: serverAddress, apiKey: API_KEY, transport: transport,
-      secure: secureConnection, persist: persistentCache}, onSetupCompleted);
+    const tinode = new Tinode({
+      appName: APP_NAME, host: serverAddress, apiKey: API_KEY, transport: transport,
+      secure: secureConnection, persist: persistentCache
+    }, onSetupCompleted);
     tinode.setHumanLanguage(locale);
     tinode.enableLogging(LOGGING_ENABLED, true);
     return tinode;
@@ -382,12 +411,12 @@ class TinodeWeb extends React.Component {
   }
 
   initFCMessaging() {
-    const {formatMessage, locale} = this.props.intl;
+    const { formatMessage, locale } = this.props.intl;
     const onError = (msg, err) => {
       console.error(msg, err);
       //this.handleError(formatMessage(messages.push_init_failed), 'err');
-      this.setState({firebaseToken: null});
-      LocalStorageUtil.updateObject('settings', {desktopAlerts: false});
+      this.setState({ firebaseToken: null });
+      LocalStorageUtil.updateObject('settings', { desktopAlerts: false });
     }
 
     try {
@@ -399,7 +428,7 @@ class TinodeWeb extends React.Component {
         });
       }).then(reg => {
         // Pass locale and version config to the service worker.
-        (reg.active || reg.installing).postMessage(JSON.stringify({locale: locale, version: PACKAGE_VERSION}));
+        (reg.active || reg.installing).postMessage(JSON.stringify({ locale: locale, version: PACKAGE_VERSION }));
         // Request token.
         return TinodeWeb.requestFCMToken(this.fcm, reg);
       }).then(token => {
@@ -410,9 +439,9 @@ class TinodeWeb extends React.Component {
             LocalStorageUtil.setObject('firebase-token', token);
           }
         }
-        this.setState({firebaseToken: token, desktopAlerts: true});
+        this.setState({ firebaseToken: token, desktopAlerts: true });
         if (persist) {
-          LocalStorageUtil.updateObject('settings', {desktopAlerts: true});
+          LocalStorageUtil.updateObject('settings', { desktopAlerts: true });
         }
 
         // Handhe FCM pushes
@@ -468,7 +497,7 @@ class TinodeWeb extends React.Component {
       viewportHeight: document.documentElement.clientHeight
     });
     if (this.state.displayMobile != mobile) {
-      this.setState({displayMobile: mobile});
+      this.setState({ displayMobile: mobile });
     }
   }
 
@@ -503,8 +532,8 @@ class TinodeWeb extends React.Component {
 
     if (hash.path && hash.path.length > 0) {
       // Left-side panel selector.
-      if (['register','settings','edit','notif','security','support','general','crop',
-          'cred','reset','newtpk','archive','blocked','contacts','admin',''].includes(hash.path[0])) {
+      if (['register', 'settings', 'edit', 'notif', 'security', 'support', 'general', 'crop',
+        'cred', 'reset', 'newtpk', 'archive', 'blocked', 'contacts', 'admin', ''].includes(hash.path[0])) {
         newState.sidePanelSelected = hash.path[0];
       } else {
         console.warn("Unknown sidepanel view", hash.path[0]);
@@ -528,7 +557,7 @@ class TinodeWeb extends React.Component {
       }
     } else {
       // Empty hashpath
-      Object.assign(newState, {sidePanelSelected: '', topicSelected: null});
+      Object.assign(newState, { sidePanelSelected: '', topicSelected: null });
     }
 
     // Save credential validation parameters, if available.
@@ -559,11 +588,11 @@ class TinodeWeb extends React.Component {
     } else {
       this.handleError(this.props.intl.formatMessage(messages.no_connection), 'warn');
     }
-    this.setState({liveConnection: online});
+    this.setState({ liveConnection: online });
   }
 
   handleVisibilityEvent() {
-    this.setState({applicationVisible: !document.hidden});
+    this.setState({ applicationVisible: !document.hidden });
   }
 
   static stateForError(err, level, action, actionText) {
@@ -592,11 +621,11 @@ class TinodeWeb extends React.Component {
     this.handleError('', null);
 
     if (this.tinode.isConnected()) {
-      this.doLogin(login, password, null, {meth: this.state.credMethod, resp: this.state.credCode});
+      this.doLogin(login, password, null, { meth: this.state.credMethod, resp: this.state.credCode });
     } else {
       this.tinode.connect().catch(err => {
         // Socket error
-        this.setState({loginDisabled: false, autoLogin: false, loadSpinnerVisible: false});
+        this.setState({ loginDisabled: false, autoLogin: false, loadSpinnerVisible: false });
         this.handleError(err.message, 'err');
       });
     }
@@ -613,12 +642,12 @@ class TinodeWeb extends React.Component {
     if (persist) {
       this.tinode.initStorage().then(_ => {
         LocalStorageUtil.setObject('keep-logged-in', true);
-        this.setState({persist: true});
+        this.setState({ persist: true });
       });
     } else {
       this.tinode.clearStorage().then(_ => {
         LocalStorageUtil.setObject('keep-logged-in', false);
-        this.setState({persist: false});
+        this.setState({ persist: false });
       });
     }
   }
@@ -638,7 +667,7 @@ class TinodeWeb extends React.Component {
 
     if (this.state.autoLogin) {
       this.doLogin(this.state.login, this.state.password, null,
-        {meth: this.state.credMethod, resp: this.state.credCode});
+        { meth: this.state.credMethod, resp: this.state.credCode });
     }
   }
 
@@ -663,7 +692,7 @@ class TinodeWeb extends React.Component {
       return;
     }
 
-    const {formatMessage} = this.props.intl;
+    const { formatMessage } = this.props.intl;
     let count = sec / 1000;
     count = count | count;
     this.reconnectCountdown = setInterval(_ => {
@@ -676,7 +705,7 @@ class TinodeWeb extends React.Component {
 
       const fmtTime = (count > 99) ? secondsToTime(count) : count;
       this.handleError(
-        formatMessage(messages.reconnect_countdown, {seconds: fmtTime}),
+        formatMessage(messages.reconnect_countdown, { seconds: fmtTime }),
         'warn',
         _ => {
           clearInterval(this.reconnectCountdown);
@@ -715,7 +744,7 @@ class TinodeWeb extends React.Component {
       // No login credentials provided.
       // Make sure we are on the login page.
       HashNavigation.navigateTo('');
-      this.setState({loginDisabled: false});
+      this.setState({ loginDisabled: false });
       return;
     }
 
@@ -727,7 +756,7 @@ class TinodeWeb extends React.Component {
     let loginPromise;
     if (login && password) {
       token = null;
-      this.setState({password: null});
+      this.setState({ password: null });
       loginPromise = connectionPromise.then(_ => this.tinode.loginBasic(login, password, cred));
     } else {
       loginPromise = connectionPromise.then(_ => this.tinode.loginToken(token, cred));
@@ -735,7 +764,7 @@ class TinodeWeb extends React.Component {
 
     loginPromise.then(ctrl => {
       if (ctrl.code >= 300 && ctrl.text === 'validate credentials') {
-        this.setState({loadSpinnerVisible: false});
+        this.setState({ loadSpinnerVisible: false });
         if (cred) {
           this.handleError(this.props.intl.formatMessage(messages.code_doesnot_match), 'warn');
         }
@@ -804,14 +833,14 @@ class TinodeWeb extends React.Component {
         withTags().
         withCred().
         build()
-      ).catch(err => {
-        this.tinode.disconnect();
-        localStorage.removeItem('auth-token');
-        this.handleError(err.message, 'err');
-        HashNavigation.navigateTo('');
-      }).finally(_ => {
-        this.setState({loadSpinnerVisible: false});
-      });
+    ).catch(err => {
+      this.tinode.disconnect();
+      localStorage.removeItem('auth-token');
+      this.handleError(err.message, 'err');
+      HashNavigation.navigateTo('');
+    }).finally(_ => {
+      this.setState({ loadSpinnerVisible: false });
+    });
     let urlHash = HashNavigation.setUrlSidePanel(window.location.hash, 'contacts');
     if (goToTopic) {
       urlHash = HashNavigation.setUrlTopic(urlHash, goToTopic);
@@ -851,7 +880,7 @@ class TinodeWeb extends React.Component {
     if (what == 'on' || what == 'off') {
       this.resetContactList();
       if (this.state.topicSelected == cont.topic) {
-        this.setState({topicSelectedOnline: (what == 'on')});
+        this.setState({ topicSelectedOnline: (what == 'on') });
       }
     } else if (what == 'read') {
       this.resetContactList();
@@ -885,7 +914,7 @@ class TinodeWeb extends React.Component {
       // Permissions changed. If it's for the currently selected topic,
       // update the views.
       if (this.state.topicSelected == cont.topic) {
-        this.setState({topicSelectedAcs: cont.acs});
+        this.setState({ topicSelectedAcs: cont.acs });
       }
     } else if (what == 'del') {
       // TODO: messages deleted (hard or soft) -- update pill counter.
@@ -911,13 +940,13 @@ class TinodeWeb extends React.Component {
     // same format as foundContacts.
     for (const c of chatList) {
       if (Tinode.isP2PTopicName(c.topic)) {
-          merged[c.topic] = {
-            user: c.topic,
-            updated: c.updated,
-            public: c.public,
-            private: c.private,
-            acs: c.acs
-          };
+        merged[c.topic] = {
+          user: c.topic,
+          updated: c.updated,
+          public: c.public,
+          private: c.private,
+          acs: c.acs
+        };
       }
     }
 
@@ -993,7 +1022,7 @@ class TinodeWeb extends React.Component {
    */
   handleSearchContacts(query) {
     const fnd = this.tinode.getFndTopic();
-    fnd.setMeta({desc: {public: query}})
+    fnd.setMeta({ desc: { public: query } })
       .then(_ => fnd.getMeta(fnd.startMetaQuery().withSub().build()))
       .catch(err => this.handleError(err.message, 'err'));
   }
@@ -1057,10 +1086,10 @@ class TinodeWeb extends React.Component {
   handleSendMessage(msg, uploadCompletionPromise, uploader, head) {
     const topic = this.tinode.getTopic(this.state.topicSelected);
 
-    console.error('topic'+topic)
-    console.error('msg'+msg)
-    console.error('this.state.topicSelected'+this.state.topicSelected)
-    console.error('head'+head)
+    console.error('topic' + topic)
+    console.error('msg' + msg)
+    console.error('this.state.topicSelected' + this.state.topicSelected)
+    console.error('head' + head)
     /* TODO: check if return is required */
     return this.sendMessageToTopic(topic, msg, uploadCompletionPromise, uploader, head);
   }
@@ -1125,11 +1154,11 @@ class TinodeWeb extends React.Component {
       case 'accept':
         // Accept given permissions.
         const mode = topic.getAccessMode().getGiven();
-        response = topic.setMeta({sub: {mode: mode}});
+        response = topic.setMeta({ sub: { mode: mode } });
         if (topic.isP2PType()) {
           // For P2P topics change 'given' permission of the peer too.
           // In p2p topics the other user has the same name as the topic.
-          response = response.then(_ => topic.setMeta({sub: {user: topicName, mode: mode}}));
+          response = response.then(_ => topic.setMeta({ sub: { user: topicName, mode: mode } }));
         }
         break;
       case 'delete':
@@ -1140,7 +1169,7 @@ class TinodeWeb extends React.Component {
         // Ban the topic making futher invites impossible.
         // Just self-ban.
         const am = topic.getAccessMode().updateWant('-JP').getWant();
-        response = topic.setMeta({sub: {mode: am}}).then(_ => this.handleTopicSelected(null));
+        response = topic.setMeta({ sub: { mode: am } }).then(_ => this.handleTopicSelected(null));
         break;
       default:
         console.warn("Unknown invitation action", '"' + action + '""');
@@ -1170,7 +1199,7 @@ class TinodeWeb extends React.Component {
           attachments = [public_.photo.ref];
         }
         return this.tinode.createAccountBasic(login_, password_,
-          {public: public_, tags: tags_, cred: Tinode.credential(cred_), attachments: attachments});
+          { public: public_, tags: tags_, cred: Tinode.credential(cred_), attachments: attachments });
       }).then(ctrl => {
         if (ctrl.code >= 300 && ctrl.text == 'validate credentials') {
           TinodeWeb.navigateToCredentialsView(ctrl.params);
@@ -1184,19 +1213,19 @@ class TinodeWeb extends React.Component {
 
   handleToggleIncognitoMode(on) {
     // Make state undefined.
-    this.setState({incognitoMode: null});
+    this.setState({ incognitoMode: null });
 
     const me = this.tinode.getMeTopic();
     const am = me.getAccessMode().updateWant(on ? '-P' : '+P').getWant();
-    me.setMeta({sub: {mode: am}}).catch(err => {
+    me.setMeta({ sub: { mode: am } }).catch(err => {
       // Request failed, keep existing state.
-      this.setState({incognitoMode: !on});
+      this.setState({ incognitoMode: !on });
       this.handleError(err.message, 'err');
     });
   }
 
   handleUpdateAccountTagsRequest(_, tags) {
-    this.tinode.getMeTopic().setMeta({tags: tags})
+    this.tinode.getMeTopic().setMeta({ tags: tags })
       .catch(err => this.handleError(err.message, 'err'));
   }
 
@@ -1255,33 +1284,33 @@ class TinodeWeb extends React.Component {
 
   toggleFCMToken(enabled) {
     if (enabled) {
-      this.setState({desktopAlerts: null});
+      this.setState({ desktopAlerts: null });
       if (!this.state.firebaseToken) {
         this.initFCMessaging();
       } else {
-        this.setState({desktopAlerts: true});
+        this.setState({ desktopAlerts: true });
         if (LocalStorageUtil.getObject('keep-logged-in')) {
-          LocalStorageUtil.updateObject('settings', {desktopAlerts: true});
+          LocalStorageUtil.updateObject('settings', { desktopAlerts: true });
         }
       }
     } else if (this.state.firebaseToken && this.fcm) {
       firebaseDelToken(this.fcm).catch(err => {
         console.error("Unable to delete token.", err);
       }).finally(_ => {
-        LocalStorageUtil.updateObject('settings', {desktopAlerts: false});
+        LocalStorageUtil.updateObject('settings', { desktopAlerts: false });
         localStorage.removeItem('firebase-token');
-        this.setState({desktopAlerts: false, firebaseToken: null});
+        this.setState({ desktopAlerts: false, firebaseToken: null });
         // Inform the server that the token was deleted.
         this.tinode.setDeviceToken(null);
       });
     } else {
-      this.setState({desktopAlerts: false, firebaseToken: null});
-      LocalStorageUtil.updateObject('settings', {desktopAlerts: false});
+      this.setState({ desktopAlerts: false, firebaseToken: null });
+      LocalStorageUtil.updateObject('settings', { desktopAlerts: false });
     }
   }
 
   handleToggleMessageSounds(enabled) {
-    this.setState({messageSounds: enabled});
+    this.setState({ messageSounds: enabled });
     LocalStorageUtil.updateObject('settings', {
       messageSoundsOff: !enabled
     });
@@ -1289,7 +1318,7 @@ class TinodeWeb extends React.Component {
 
   handleCredAdd(method, value) {
     const me = this.tinode.getMeTopic();
-    me.setMeta({cred: {meth: method, val: value}})
+    me.setMeta({ cred: { meth: method, val: value } })
       .catch(err => this.handleError(err.message, 'err'));
   }
 
@@ -1300,14 +1329,14 @@ class TinodeWeb extends React.Component {
   }
 
   handleCredConfirm(method, response) {
-    TinodeWeb.navigateToCredentialsView({cred: [method], code: response});
+    TinodeWeb.navigateToCredentialsView({ cred: [method], code: response });
   }
 
   // User clicked Cancel button in Setting or Sign Up panel.
   handleSidepanelCancel() {
     const parsed = HashNavigation.parseUrlHash(window.location.hash);
     let path = '';
-    if (['security','support','general','notif'].includes(parsed.path[0])) {
+    if (['security', 'support', 'general', 'notif'].includes(parsed.path[0])) {
       path = 'edit';
     } else if ('crop' == parsed.path[0]) {
       path = 'general';
@@ -1325,7 +1354,7 @@ class TinodeWeb extends React.Component {
       delete parsed.params.token;
     }
     HashNavigation.navigateTo(HashNavigation.composeUrlHash(parsed.path, parsed.params));
-    this.setState({errorText: '', errorLevel: null});
+    this.setState({ errorText: '', errorLevel: null });
   }
 
   // Sidepanel navigator. No need to bind to 'this'.
@@ -1349,25 +1378,25 @@ class TinodeWeb extends React.Component {
     const params = {};
     if (Tinode.isP2PTopicName(topicName)) {
       // Because we are initiating the subscription, set 'want' to all permissions.
-      params.sub = {mode: DEFAULT_P2P_ACCESS_MODE};
+      params.sub = { mode: DEFAULT_P2P_ACCESS_MODE };
       // Give the other user all permissions too.
-      params.desc = {defacs: {auth: DEFAULT_P2P_ACCESS_MODE}};
+      params.desc = { defacs: { auth: DEFAULT_P2P_ACCESS_MODE } };
     } else {
       topicName = topicName || this.tinode.newGroupTopicName(isChannel);
       if (newTopicParams) {
-        params.desc = {public: newTopicParams.public, private: {comment: newTopicParams.private}};
+        params.desc = { public: newTopicParams.public, private: { comment: newTopicParams.private } };
         params.tags = newTopicParams.tags;
       }
     }
     params._topicName = topicName;
-    this.setState({newTopicParams: params}, _ => {this.handleTopicSelected(topicName)});
+    this.setState({ newTopicParams: params }, _ => { this.handleTopicSelected(topicName) });
   }
 
   // New topic was created, here is the new topic name.
   handleNewTopicCreated(oldName, newName) {
     let nextState = {};
     if (this.state.callShouldStart) {
-      nextState = {callState: CALL_STATE_IN_PROGRESS, callShouldStart: false};
+      nextState = { callState: CALL_STATE_IN_PROGRESS, callShouldStart: false };
     }
     if (this.state.topicSelected == oldName && oldName != newName) {
       // If the current URl contains the old topic name, replace it with new.
@@ -1400,12 +1429,12 @@ class TinodeWeb extends React.Component {
 
       if (typeof priv == 'string') {
         params.private = (priv === Tinode.DEL_CHAR) ?
-          Tinode.DEL_CHAR : {comment: priv};
+          Tinode.DEL_CHAR : { comment: priv };
       }
       if (defacs) {
         params.defacs = defacs;
       }
-      topic.setMeta({desc: params, attachments: attachments})
+      topic.setMeta({ desc: params, attachments: attachments })
         .catch(err => this.handleError(err.message, 'err'));
     }
   }
@@ -1417,7 +1446,7 @@ class TinodeWeb extends React.Component {
     }
   }
 
-  handleUpdatePasswordRequest(password)  {
+  handleUpdatePasswordRequest(password) {
     this.handleError();
 
     if (password) {
@@ -1437,7 +1466,7 @@ class TinodeWeb extends React.Component {
         am.updateWant(mode);
         mode = am.getWant();
       }
-      topic.setMeta({sub: {user: uid, mode: mode}})
+      topic.setMeta({ sub: { user: uid, mode: mode } })
         .catch(err => this.handleError(err.message, 'err'));
     }
   }
@@ -1445,7 +1474,7 @@ class TinodeWeb extends React.Component {
   handleTagsUpdateRequest(topicName, tags) {
     const topic = this.tinode.getTopic(topicName);
     if (topic) {
-      topic.setMeta({tags: tags})
+      topic.setMeta({ tags: tags })
         .catch(err => this.handleError(err.message, 'err'));
     }
   }
@@ -1557,17 +1586,17 @@ class TinodeWeb extends React.Component {
 
     // Remove J and P permissions.
     topic.updateMode(null, '-JP')
-    .then(_ => {
-      // Hide MessagesView and InfoView panels.
-      HashNavigation.navigateTo(HashNavigation.setUrlTopic(window.location.hash, ''));
-    })
-    .catch(err => this.handleError(err.message, 'err'));
+      .then(_ => {
+        // Hide MessagesView and InfoView panels.
+        HashNavigation.navigateTo(HashNavigation.setUrlTopic(window.location.hash, ''));
+      })
+      .catch(err => this.handleError(err.message, 'err'));
   }
 
   handleShowContextMenu(params, menuItems) {
     this.setState({
       contextMenuVisible: true,
-      contextMenuClickAt: {x: params.x, y: params.y},
+      contextMenuClickAt: { x: params.x, y: params.y },
       contextMenuParams: params,
       contextMenuItems: menuItems || this.defaultTopicContextMenu(params.topicName),
       contextMenuBounds: this.selfRef.current.getBoundingClientRect()
@@ -1687,7 +1716,7 @@ class TinodeWeb extends React.Component {
 
   handleShowInfoView() {
     HashNavigation.navigateTo(HashNavigation.addUrlParam(window.location.hash, 'info', 'info'));
-    this.setState({infoPanel: 'info'});
+    this.setState({ infoPanel: 'info' });
   }
 
   handleMemberUpdateRequest(topicName, added, removed) {
@@ -1718,13 +1747,13 @@ class TinodeWeb extends React.Component {
   handleValidateCredentialsRequest(cred, code, token) {
     if (this.tinode.isAuthenticated()) {
       // Adding new email or phone number in account setting.
-      this.tinode.getMeTopic().setMeta({cred: {meth: cred, resp: code}})
+      this.tinode.getMeTopic().setMeta({ cred: { meth: cred, resp: code } })
         .then(_ => HashNavigation.navigateTo(HashNavigation.setUrlSidePanel(window.location.hash, 'contacts')))
         .catch(err => this.handleError(err.message, 'err'));
     } else {
       // Credential validation on signup.
-      this.setState({credMethod: cred, credCode: code, credToken: token});
-      this.doLogin(null, null, token, {meth: cred, resp: code});
+      this.setState({ credMethod: cred, credCode: code, credToken: token });
+      this.doLogin(null, null, token, { meth: cred, resp: code });
     }
   }
 
@@ -1744,7 +1773,7 @@ class TinodeWeb extends React.Component {
       this.handleError(this.props.intl.formatMessage(messages.invalid_security_token), 'err');
     } else {
       this.tinode.connect()
-        .then(_ => this.tinode.updateAccountBasic(null, null, newPassword, {scheme: tempAuth.scheme, secret: secret}))
+        .then(_ => this.tinode.updateAccountBasic(null, null, newPassword, { scheme: tempAuth.scheme, secret: secret }))
         .then(_ => {
           this.handleError(this.props.intl.formatMessage(messages.password_reset_success), 'info');
           HashNavigation.navigateTo('');
@@ -1758,15 +1787,15 @@ class TinodeWeb extends React.Component {
   handleShowCountrySelector(code, dial, selectedCallback) {
     this.handleShowAlert("Select country",
       <Suspense fallback={<div><FormattedMessage id="loading_note" defaultMessage="Loading..."
-        description="Message shown when component is loading"/></div>}>
+        description="Message shown when component is loading" /></div>}>
         <PhoneCountrySelector
           selected={code}
           onSubmit={(c, d) => {
-            this.setState({alertVisible: false});
+            this.setState({ alertVisible: false });
             selectedCallback(c, d);
           }} />
       </Suspense>,
-      null, null, _ => {}, "Cancel");
+      null, null, _ => { }, "Cancel");
   }
 
   handleStartVideoCall() {
@@ -1795,7 +1824,7 @@ class TinodeWeb extends React.Component {
               this.handleCallClose();
               return;
             }
-            this.setState({callSeq: ctrl.params['seq']});
+            this.setState({ callSeq: ctrl.params['seq'] });
           });
         break;
       case CALL_STATE_IN_PROGRESS:
@@ -1900,7 +1929,7 @@ class TinodeWeb extends React.Component {
         }
         if (info.topic == this.state.callTopic) {
           // Update state.
-          this.setState({callState: CALL_STATE_IN_PROGRESS});
+          this.setState({ callState: CALL_STATE_IN_PROGRESS });
         }
         break;
       case 'hang-up':
@@ -1944,279 +1973,441 @@ class TinodeWeb extends React.Component {
   }
 
   render() {
-    return (
-      <div id="app-container" ref={this.selfRef}>
-        {this.state.contextMenuVisible ?
-          <ContextMenu
-            tinode={this.tinode}
-            bounds={this.state.contextMenuBounds}
-            clickAt={this.state.contextMenuClickAt}
-            params={this.state.contextMenuParams}
-            items={this.state.contextMenuItems}
-            hide={this.handleHideContextMenu}
-            onShowAlert={this.handleShowAlert}
-            onAction={this.handleContextMenuAction}
-            onTopicRemoved={(topicName) => {
-              if (topicName == this.state.topicSelected) {
-                this.handleTopicSelected(null);
-              }
-            }}
-            onError={this.handleError} />
-          :
-          null
-        }
-        {this.state.forwardDialogVisible ?
-          <ForwardDialog
-            tinode={this.tinode}
-            contacts={this.state.chatList}
-            topicSelected={this.state.topicSelected}
-            myUserId={this.state.myUserId}
 
-            hide={this.handleHideForwardDialog}
-            onInitFind={this.tnInitFind}
-            searchResults={this.state.searchResults}
-            onSearchContacts={this.handleSearchContacts}
-            onTopicSelected={this.handleStartTopicRequest}
-          />
-          :
-          null
-        }
-        {this.state.callTopic && this.state.callState == CALL_STATE_INCOMING_RECEIVED ?
-          <CallIncoming
-            tinode={this.tinode}
-            topic={this.state.callTopic}
-            seq={this.state.callSeq}
-            callState={this.state.callState}
-            audioOnly={this.state.callAudioOnly}
-            onClose={this.handleCallClose}
-            onRinging={this.handleCallRinging}
-            onAcceptCall={this.handleCallAccept}
-            onReject={this.handleCallHangup}
-            />
-          :
-          null
-        }
-        {this.state.alertVisible ?
-          <Alert
-            title={this.state.alertParams.title}
-            content={this.state.alertParams.content}
-            onReject={this.state.alertParams.onReject ? (_ => this.setState({alertVisible: false})) : null}
-            reject={this.state.alertParams.reject}
-            onConfirm={this.state.alertParams.onConfirm ?
-              (_ => {this.setState({alertVisible: false}); this.state.alertParams.onConfirm();}) : null}
-            confirm={this.state.alertParams.confirm}
-            /> : null}
+    if (window.location.pathname === '/') {
+      return <div>
+      <Header id={Styles.header} >
+        <div className={Styles.headerBox}>
+          <h1 className={Styles.topTitle}>Introduce</h1>
 
-        {!this.state.displayMobile || this.state.mobilePanel == 'sidepanel' ?
-          <SidepanelView
-            tinode={this.tinode}
-            connected={this.state.connected}
-            displayMobile={this.state.displayMobile}
-            state={this.state.sidePanelSelected}
-            title={this.state.sidePanelTitle}
-            avatar={this.state.sidePanelAvatar}
-            trustedBadges={this.state.myTrustedBadges}
-            login={this.state.login}
-            persist={this.state.persist}
-            myUserId={this.state.myUserId}
-            loginDisabled={this.state.loginDisabled}
-            loadSpinnerVisible={this.state.loadSpinnerVisible}
+        </div>
 
-            errorText={this.state.errorText}
-            errorLevel={this.state.errorLevel}
-            errorAction={this.state.errorAction}
-            errorActionText={this.state.errorActionText}
+      </Header>
+      <Layout className={Styles.homeBox}>
+        {/* 左侧边栏 */}
+        <Sider
+          width={260}
+          className={Styles.homeSider}
+        >
+          <div>
+            <div className={Styles.subjectView}>
+              {/* Loginview / SubjectView */}
 
-            topicSelected={this.state.topicSelected}
-            chatList={this.state.chatList}
-            credMethod={this.state.credMethod}
-            credCode={this.state.credCode}
-            credToken={this.state.credToken}
+              <SidepanelView
+                tinode={this.tinode}
+                connected={this.state.connected}
+                displayMobile={this.state.displayMobile}
+                state={this.state.sidePanelSelected}
+                title={this.state.sidePanelTitle}
+                avatar={this.state.sidePanelAvatar}
+                trustedBadges={this.state.myTrustedBadges}
+                login={this.state.login}
+                persist={this.state.persist}
+                myUserId={this.state.myUserId}
+                loginDisabled={this.state.loginDisabled}
+                loadSpinnerVisible={this.state.loadSpinnerVisible}
 
-            transport={this.state.transport}
-            messageSounds={this.state.messageSounds}
-            desktopAlerts={this.state.desktopAlerts}
-            desktopAlertsEnabled={this.state.desktopAlertsEnabled}
-            incognitoMode={this.state.incognitoMode}
-            serverAddress={this.state.serverAddress}
-            secureConnection={this.state.secureConnection}
-            serverVersion={this.state.serverVersion}
-            reqCredMethod={this.state.reqCredMethod}
+                errorText={this.state.errorText}
+                errorLevel={this.state.errorLevel}
+                errorAction={this.state.errorAction}
+                errorActionText={this.state.errorActionText}
 
-            onGlobalSettings={this.handleGlobalSettings}
-            onSignUp={this.handleNewAccount}
-            onSettings={this.handleSettings}
-            onNavigate={this.basicNavigator}
-            onLoginRequest={this.handleLoginRequest}
-            onPersistenceChange={this.handlePersistenceChange}
-            onCreateAccount={this.handleNewAccountRequest}
-            onUpdateAccountDesc={this.handleTopicUpdateRequest}
-            onUpdatePassword={this.handleUpdatePasswordRequest}
-            onUpdateAccountTags={this.handleUpdateAccountTagsRequest}
-            onTogglePushNotifications={this.toggleFCMToken}
-            onToggleMessageSounds={this.handleToggleMessageSounds}
-            onToggleIncognitoMode={this.handleToggleIncognitoMode}
-            onCredAdd={this.handleCredAdd}
-            onCredDelete={this.handleCredDelete}
-            onCredConfirm={this.handleCredConfirm}
-            onTopicSelected={this.handleTopicSelected}
-            onCreateTopic={this.handleStartTopicRequest}
-            onLogout={this.handleLogout}
-            onDeleteAccount={this.handleDeleteAccount}
-            onShowAlert={this.handleShowAlert}
-            onCancel={this.handleSidepanelCancel}
-            onError={this.handleError}
-            onValidateCredentials={this.handleValidateCredentialsRequest}
-            onPasswordResetRequest={this.handlePasswordResetRequest}
-            onResetPassword={this.handleResetPassword}
-            onShowArchive={this.handleShowArchive}
-            onShowBlocked={this.handleShowBlocked}
-            onShowCountrySelector={this.handleShowCountrySelector}
+                topicSelected={this.state.topicSelected}
+                chatList={this.state.chatList}
+                credMethod={this.state.credMethod}
+                credCode={this.state.credCode}
+                credToken={this.state.credToken}
 
-            onInitFind={this.tnInitFind}
-            searchResults={this.state.searchResults}
-            onSearchContacts={this.handleSearchContacts}
+                transport={this.state.transport}
+                messageSounds={this.state.messageSounds}
+                desktopAlerts={this.state.desktopAlerts}
+                desktopAlertsEnabled={this.state.desktopAlertsEnabled}
+                incognitoMode={this.state.incognitoMode}
+                serverAddress={this.state.serverAddress}
+                secureConnection={this.state.secureConnection}
+                serverVersion={this.state.serverVersion}
+                reqCredMethod={this.state.reqCredMethod}
 
-            showContextMenu={this.handleShowContextMenu} />
-          : null}
+                onGlobalSettings={this.handleGlobalSettings}
+                onSignUp={this.handleNewAccount}
+                onSettings={this.handleSettings}
+                onNavigate={this.basicNavigator}
+                onLoginRequest={this.handleLoginRequest}
+                onPersistenceChange={this.handlePersistenceChange}
+                onCreateAccount={this.handleNewAccountRequest}
+                onUpdateAccountDesc={this.handleTopicUpdateRequest}
+                onUpdatePassword={this.handleUpdatePasswordRequest}
+                onUpdateAccountTags={this.handleUpdateAccountTagsRequest}
+                onTogglePushNotifications={this.toggleFCMToken}
+                onToggleMessageSounds={this.handleToggleMessageSounds}
+                onToggleIncognitoMode={this.handleToggleIncognitoMode}
+                onCredAdd={this.handleCredAdd}
+                onCredDelete={this.handleCredDelete}
+                onCredConfirm={this.handleCredConfirm}
+                onTopicSelected={this.handleTopicSelected}
+                onCreateTopic={this.handleStartTopicRequest}
+                onLogout={this.handleLogout}
+                onDeleteAccount={this.handleDeleteAccount}
+                onShowAlert={this.handleShowAlert}
+                onCancel={this.handleSidepanelCancel}
+                onError={this.handleError}
+                onValidateCredentials={this.handleValidateCredentialsRequest}
+                onPasswordResetRequest={this.handlePasswordResetRequest}
+                onResetPassword={this.handleResetPassword}
+                onShowArchive={this.handleShowArchive}
+                onShowBlocked={this.handleShowBlocked}
+                onShowCountrySelector={this.handleShowCountrySelector}
 
-        {!this.state.displayMobile || (this.state.mobilePanel == 'topic-view' && !this.state.infoPanel) ?
-          <MessagesView
-            tinode={this.tinode}
-            connected={this.state.connected}
-            ready={this.state.ready}
-            online={this.state.topicSelectedOnline}
-            acs={this.state.topicSelectedAcs}
-            displayMobile={this.state.displayMobile}
-            viewportWidth={this.state.viewportWidth}
-            viewportHeight={this.state.viewportHeight}
-            topic={this.state.topicSelected}
-            myUserId={this.state.myUserId}
-            // User public.fn.
-            myUserName={this.state.sidePanelTitle}
-            serverVersion={this.state.serverVersion}
-            serverAddress={this.state.serverAddress}
-            applicationVisible={this.state.applicationVisible}
+                onInitFind={this.tnInitFind}
+                searchResults={this.state.searchResults}
+                onSearchContacts={this.handleSearchContacts}
 
-            forwardMessage={this.state.forwardMessage}
-            onCancelForwardMessage={this.handleHideForwardDialog}
+                showContextMenu={this.handleShowContextMenu} />
+            </div>
 
-            callTopic={this.state.callTopic}
-            callSeq={this.state.callSeq}
-            callState={this.state.callState}
-            callAudioOnly={this.state.callAudioOnly}
-            onCallHangup={this.handleCallHangup}
+          </div>
 
-            onCallInvite={this.handleCallInvite}
-            onCallSendOffer={this.handleCallSendOffer}
-            onCallIceCandidate={this.handleCallIceCandidate}
-            onCallSendAnswer={this.handleCallSendAnswer}
+        </Sider>
+        <Content id={Styles.contentBox}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <div>
+              <img src={getAssetsImage("logo.png")} width="200" alt="" />
+              <h1 style={{ margin: "20px", textAlign: "center" }}>欢迎进入XXXX 测评系统</h1>
+            </div>
+          </div>
 
-            errorText={this.state.errorText}
-            errorLevel={this.state.errorLevel}
-            errorAction={this.state.errorAction}
-            errorActionText={this.state.errorActionText}
 
-            newTopicParams={this.state.newTopicParams}
+        </Content>
+      </Layout>
 
-            onHideMessagesView={this.handleHideMessagesView}
-            onError={this.handleError}
-            onNewTopicCreated={this.handleNewTopicCreated}
-            showContextMenu={this.handleShowContextMenu}
-            onChangePermissions={this.handleChangePermissions}
-            onNewChat={this.handleNewChatInvitation}
-            sendMessage={this.handleSendMessage}
-            onVideoCallClosed={this.handleCallClose} />
-          : null}
+    </div>
 
-        {this.state.infoPanel ?
-          <InfoView
-            tinode={this.tinode}
-            connected={this.state.connected}
-            displayMobile={this.state.displayMobile}
-            topic={this.state.topicSelected}
-            searchableContacts={this.state.searchableContacts}
-            myUserId={this.state.myUserId}
-            panel={this.state.infoPanel}
+      
+    } else if (window.location.pathname === '/home') {
+      return <HomeView  tinode={this.tinode}
+      connected={this.state.connected}
+      ready={this.state.ready}
+      online={this.state.topicSelectedOnline}
+      acs={this.state.topicSelectedAcs}
+      displayMobile={this.state.displayMobile}
+      viewportWidth={this.state.viewportWidth}
+      viewportHeight={this.state.viewportHeight}
+      topic={this.state.topicSelected}
+      myUserId={this.state.myUserId}
+      // User public.fn.
+      myUserName={this.state.sidePanelTitle}
+      serverVersion={this.state.serverVersion}
+      serverAddress={this.state.serverAddress}
+      applicationVisible={this.state.applicationVisible}
 
-            errorText={this.state.errorText}
-            errorLevel={this.state.errorLevel}
-            errorAction={this.state.errorAction}
-            errorActionText={this.state.errorActionText}
+      forwardMessage={this.state.forwardMessage}
+      onCancelForwardMessage={this.handleHideForwardDialog}
 
-            onNavigate={this.infoNavigator}
-            onTopicDescUpdateRequest={this.handleTopicUpdateRequest}
-            onShowAlert={this.handleShowAlert}
-            onChangePermissions={this.handleChangePermissions}
-            onMemberUpdateRequest={this.handleMemberUpdateRequest}
-            onDeleteTopic={this.handleDeleteTopicRequest}
-            onDeleteMessages={this.handleDeleteMessagesRequest}
-            onLeaveTopic={this.handleLeaveUnsubRequest}
-            onBlockTopic={this.handleBlockTopicRequest}
-            onReportTopic={this.handleReportTopic}
-            onAddMember={this.handleManageGroupMembers}
-            onTopicTagsUpdateRequest={this.handleTagsUpdateRequest}
-            onTopicUnArchive={this.handleUnarchive}
-            onInitFind={this.tnInitFind}
-            onError={this.handleError}
+      callTopic={this.state.callTopic}
+      callSeq={this.state.callSeq}
+      callState={this.state.callState}
+      callAudioOnly={this.state.callAudioOnly}
+      onCallHangup={this.handleCallHangup}
 
-            showContextMenu={this.handleShowContextMenu}
-            />
-          :
-          null
-        }
+      onCallInvite={this.handleCallInvite}
+      onCallSendOffer={this.handleCallSendOffer}
+      onCallIceCandidate={this.handleCallIceCandidate}
+      onCallSendAnswer={this.handleCallSendAnswer}
 
-        {/* {this.state.testVisible ?
-          <TestView
-              tinode={this.tinode}
-              connected={this.state.connected}
-              ready={this.state.ready}
-              online={this.state.topicSelectedOnline}
-              acs={this.state.topicSelectedAcs}
-              displayMobile={this.state.displayMobile}
-              viewportWidth={this.state.viewportWidth}
-              viewportHeight={this.state.viewportHeight}
-              topic={this.state.topicSelected}
-              myUserId={this.state.myUserId}
-              // User public.fn.
-              myUserName={this.state.sidePanelTitle}
-              serverVersion={this.state.serverVersion}
-              serverAddress={this.state.serverAddress}
-              applicationVisible={this.state.applicationVisible}
+      errorText={this.state.errorText}
+      errorLevel={this.state.errorLevel}
+      errorAction={this.state.errorAction}
+      errorActionText={this.state.errorActionText}
 
-              forwardMessage={this.state.forwardMessage}
-              onCancelForwardMessage={this.handleHideForwardDialog}
+      newTopicParams={this.state.newTopicParams}
 
-              callTopic={this.state.callTopic}
-              callSeq={this.state.callSeq}
-              callState={this.state.callState}
-              callAudioOnly={this.state.callAudioOnly}
-              onCallHangup={this.handleCallHangup}
+      onHideMessagesView={this.handleHideMessagesView}
+      onError={this.handleError}
+      onNewTopicCreated={this.handleNewTopicCreated}
+      showContextMenu={this.handleShowContextMenu}
+      onChangePermissions={this.handleChangePermissions}
+      onNewChat={this.handleNewChatInvitation}
+      sendMessage={this.handleSendMessage}
+      onVideoCallClosed={this.handleCallClose} />
 
-              onCallInvite={this.handleCallInvite}
-              onCallSendOffer={this.handleCallSendOffer}
-              onCallIceCandidate={this.handleCallIceCandidate}
-              onCallSendAnswer={this.handleCallSendAnswer}
+    } else {
+      return <h1>其他页面</h1>;
+    }
+    // return (
 
-              errorText={this.state.errorText}
-              errorLevel={this.state.errorLevel}
-              errorAction={this.state.errorAction}
-              errorActionText={this.state.errorActionText}
+    // <div id="app-container" ref={this.selfRef}>
+    //   {this.state.contextMenuVisible ?
+    //     <ContextMenu
+    //       tinode={this.tinode}
+    //       bounds={this.state.contextMenuBounds}
+    //       clickAt={this.state.contextMenuClickAt}
+    //       params={this.state.contextMenuParams}
+    //       items={this.state.contextMenuItems}
+    //       hide={this.handleHideContextMenu}
+    //       onShowAlert={this.handleShowAlert}
+    //       onAction={this.handleContextMenuAction}
+    //       onTopicRemoved={(topicName) => {
+    //         if (topicName == this.state.topicSelected) {
+    //           this.handleTopicSelected(null);
+    //         }
+    //       }}
+    //       onError={this.handleError} />
+    //     :
+    //     null
+    //   }
+    //   {this.state.forwardDialogVisible ?
+    //     <ForwardDialog
+    //       tinode={this.tinode}
+    //       contacts={this.state.chatList}
+    //       topicSelected={this.state.topicSelected}
+    //       myUserId={this.state.myUserId}
 
-              newTopicParams={this.state.newTopicParams}
-              handleTopicSelected={this.handleTopicSelected}
-              onHideMessagesView={this.handleHideMessagesView}
-              onError={this.handleError}
-              onNewTopicCreated={this.handleNewTopicCreated}
-              showContextMenu={this.handleShowContextMenu}
-              onChangePermissions={this.handleChangePermissions}
-              onNewChat={this.handleNewChatInvitation}
-              sendMessage={this.handleSendMessage}
-              onVideoCallClosed={this.handleCallClose}
-            /> : null} */}
-      </div>
-    );
+    //       hide={this.handleHideForwardDialog}
+    //       onInitFind={this.tnInitFind}
+    //       searchResults={this.state.searchResults}
+    //       onSearchContacts={this.handleSearchContacts}
+    //       onTopicSelected={this.handleStartTopicRequest}
+    //     />
+    //     :
+    //     null
+    //   }
+    //   {this.state.callTopic && this.state.callState == CALL_STATE_INCOMING_RECEIVED ?
+    //     <CallIncoming
+    //       tinode={this.tinode}
+    //       topic={this.state.callTopic}
+    //       seq={this.state.callSeq}
+    //       callState={this.state.callState}
+    //       audioOnly={this.state.callAudioOnly}
+    //       onClose={this.handleCallClose}
+    //       onRinging={this.handleCallRinging}
+    //       onAcceptCall={this.handleCallAccept}
+    //       onReject={this.handleCallHangup}
+    //       />
+    //     :
+    //     null
+    //   }
+    //   {this.state.alertVisible ?
+    //     <Alert
+    //       title={this.state.alertParams.title}
+    //       content={this.state.alertParams.content}
+    //       onReject={this.state.alertParams.onReject ? (_ => this.setState({alertVisible: false})) : null}
+    //       reject={this.state.alertParams.reject}
+    //       onConfirm={this.state.alertParams.onConfirm ?
+    //         (_ => {this.setState({alertVisible: false}); this.state.alertParams.onConfirm();}) : null}
+    //       confirm={this.state.alertParams.confirm}
+    //       /> : null}
+
+    //   {!this.state.displayMobile || this.state.mobilePanel == 'sidepanel' ?
+    //     <SidepanelView
+    //       tinode={this.tinode}
+    //       connected={this.state.connected}
+    //       displayMobile={this.state.displayMobile}
+    //       state={this.state.sidePanelSelected}
+    //       title={this.state.sidePanelTitle}
+    //       avatar={this.state.sidePanelAvatar}
+    //       trustedBadges={this.state.myTrustedBadges}
+    //       login={this.state.login}
+    //       persist={this.state.persist}
+    //       myUserId={this.state.myUserId}
+    //       loginDisabled={this.state.loginDisabled}
+    //       loadSpinnerVisible={this.state.loadSpinnerVisible}
+
+    //       errorText={this.state.errorText}
+    //       errorLevel={this.state.errorLevel}
+    //       errorAction={this.state.errorAction}
+    //       errorActionText={this.state.errorActionText}
+
+    //       topicSelected={this.state.topicSelected}
+    //       chatList={this.state.chatList}
+    //       credMethod={this.state.credMethod}
+    //       credCode={this.state.credCode}
+    //       credToken={this.state.credToken}
+
+    //       transport={this.state.transport}
+    //       messageSounds={this.state.messageSounds}
+    //       desktopAlerts={this.state.desktopAlerts}
+    //       desktopAlertsEnabled={this.state.desktopAlertsEnabled}
+    //       incognitoMode={this.state.incognitoMode}
+    //       serverAddress={this.state.serverAddress}
+    //       secureConnection={this.state.secureConnection}
+    //       serverVersion={this.state.serverVersion}
+    //       reqCredMethod={this.state.reqCredMethod}
+
+    //       onGlobalSettings={this.handleGlobalSettings}
+    //       onSignUp={this.handleNewAccount}
+    //       onSettings={this.handleSettings}
+    //       onNavigate={this.basicNavigator}
+    //       onLoginRequest={this.handleLoginRequest}
+    //       onPersistenceChange={this.handlePersistenceChange}
+    //       onCreateAccount={this.handleNewAccountRequest}
+    //       onUpdateAccountDesc={this.handleTopicUpdateRequest}
+    //       onUpdatePassword={this.handleUpdatePasswordRequest}
+    //       onUpdateAccountTags={this.handleUpdateAccountTagsRequest}
+    //       onTogglePushNotifications={this.toggleFCMToken}
+    //       onToggleMessageSounds={this.handleToggleMessageSounds}
+    //       onToggleIncognitoMode={this.handleToggleIncognitoMode}
+    //       onCredAdd={this.handleCredAdd}
+    //       onCredDelete={this.handleCredDelete}
+    //       onCredConfirm={this.handleCredConfirm}
+    //       onTopicSelected={this.handleTopicSelected}
+    //       onCreateTopic={this.handleStartTopicRequest}
+    //       onLogout={this.handleLogout}
+    //       onDeleteAccount={this.handleDeleteAccount}
+    //       onShowAlert={this.handleShowAlert}
+    //       onCancel={this.handleSidepanelCancel}
+    //       onError={this.handleError}
+    //       onValidateCredentials={this.handleValidateCredentialsRequest}
+    //       onPasswordResetRequest={this.handlePasswordResetRequest}
+    //       onResetPassword={this.handleResetPassword}
+    //       onShowArchive={this.handleShowArchive}
+    //       onShowBlocked={this.handleShowBlocked}
+    //       onShowCountrySelector={this.handleShowCountrySelector}
+
+    //       onInitFind={this.tnInitFind}
+    //       searchResults={this.state.searchResults}
+    //       onSearchContacts={this.handleSearchContacts}
+
+    //       showContextMenu={this.handleShowContextMenu} />
+    //     : null}
+
+    //   {!this.state.displayMobile || (this.state.mobilePanel == 'topic-view' && !this.state.infoPanel) ?
+    //     <MessagesView
+    //       tinode={this.tinode}
+    //       connected={this.state.connected}
+    //       ready={this.state.ready}
+    //       online={this.state.topicSelectedOnline}
+    //       acs={this.state.topicSelectedAcs}
+    //       displayMobile={this.state.displayMobile}
+    //       viewportWidth={this.state.viewportWidth}
+    //       viewportHeight={this.state.viewportHeight}
+    //       topic={this.state.topicSelected}
+    //       myUserId={this.state.myUserId}
+    //       // User public.fn.
+    //       myUserName={this.state.sidePanelTitle}
+    //       serverVersion={this.state.serverVersion}
+    //       serverAddress={this.state.serverAddress}
+    //       applicationVisible={this.state.applicationVisible}
+
+    //       forwardMessage={this.state.forwardMessage}
+    //       onCancelForwardMessage={this.handleHideForwardDialog}
+
+    //       callTopic={this.state.callTopic}
+    //       callSeq={this.state.callSeq}
+    //       callState={this.state.callState}
+    //       callAudioOnly={this.state.callAudioOnly}
+    //       onCallHangup={this.handleCallHangup}
+
+    //       onCallInvite={this.handleCallInvite}
+    //       onCallSendOffer={this.handleCallSendOffer}
+    //       onCallIceCandidate={this.handleCallIceCandidate}
+    //       onCallSendAnswer={this.handleCallSendAnswer}
+
+    //       errorText={this.state.errorText}
+    //       errorLevel={this.state.errorLevel}
+    //       errorAction={this.state.errorAction}
+    //       errorActionText={this.state.errorActionText}
+
+    //       newTopicParams={this.state.newTopicParams}
+
+    //       onHideMessagesView={this.handleHideMessagesView}
+    //       onError={this.handleError}
+    //       onNewTopicCreated={this.handleNewTopicCreated}
+    //       showContextMenu={this.handleShowContextMenu}
+    //       onChangePermissions={this.handleChangePermissions}
+    //       onNewChat={this.handleNewChatInvitation}
+    //       sendMessage={this.handleSendMessage}
+    //       onVideoCallClosed={this.handleCallClose} />
+    //     : null}
+
+    //   {this.state.infoPanel ?
+    //     <InfoView
+    //       tinode={this.tinode}
+    //       connected={this.state.connected}
+    //       displayMobile={this.state.displayMobile}
+    //       topic={this.state.topicSelected}
+    //       searchableContacts={this.state.searchableContacts}
+    //       myUserId={this.state.myUserId}
+    //       panel={this.state.infoPanel}
+
+    //       errorText={this.state.errorText}
+    //       errorLevel={this.state.errorLevel}
+    //       errorAction={this.state.errorAction}
+    //       errorActionText={this.state.errorActionText}
+
+    //       onNavigate={this.infoNavigator}
+    //       onTopicDescUpdateRequest={this.handleTopicUpdateRequest}
+    //       onShowAlert={this.handleShowAlert}
+    //       onChangePermissions={this.handleChangePermissions}
+    //       onMemberUpdateRequest={this.handleMemberUpdateRequest}
+    //       onDeleteTopic={this.handleDeleteTopicRequest}
+    //       onDeleteMessages={this.handleDeleteMessagesRequest}
+    //       onLeaveTopic={this.handleLeaveUnsubRequest}
+    //       onBlockTopic={this.handleBlockTopicRequest}
+    //       onReportTopic={this.handleReportTopic}
+    //       onAddMember={this.handleManageGroupMembers}
+    //       onTopicTagsUpdateRequest={this.handleTagsUpdateRequest}
+    //       onTopicUnArchive={this.handleUnarchive}
+    //       onInitFind={this.tnInitFind}
+    //       onError={this.handleError}
+
+    //       showContextMenu={this.handleShowContextMenu}
+    //       />
+    //     :
+    //     null
+    //   }
+
+    //   {/* {this.state.testVisible ?
+    //     <TestView
+    //         tinode={this.tinode}
+    //         connected={this.state.connected}
+    //         ready={this.state.ready}
+    //         online={this.state.topicSelectedOnline}
+    //         acs={this.state.topicSelectedAcs}
+    //         displayMobile={this.state.displayMobile}
+    //         viewportWidth={this.state.viewportWidth}
+    //         viewportHeight={this.state.viewportHeight}
+    //         topic={this.state.topicSelected}
+    //         myUserId={this.state.myUserId}
+    //         // User public.fn.
+    //         myUserName={this.state.sidePanelTitle}
+    //         serverVersion={this.state.serverVersion}
+    //         serverAddress={this.state.serverAddress}
+    //         applicationVisible={this.state.applicationVisible}
+
+    //         forwardMessage={this.state.forwardMessage}
+    //         onCancelForwardMessage={this.handleHideForwardDialog}
+
+    //         callTopic={this.state.callTopic}
+    //         callSeq={this.state.callSeq}
+    //         callState={this.state.callState}
+    //         callAudioOnly={this.state.callAudioOnly}
+    //         onCallHangup={this.handleCallHangup}
+
+    //         onCallInvite={this.handleCallInvite}
+    //         onCallSendOffer={this.handleCallSendOffer}
+    //         onCallIceCandidate={this.handleCallIceCandidate}
+    //         onCallSendAnswer={this.handleCallSendAnswer}
+
+    //         errorText={this.state.errorText}
+    //         errorLevel={this.state.errorLevel}
+    //         errorAction={this.state.errorAction}
+    //         errorActionText={this.state.errorActionText}
+
+    //         newTopicParams={this.state.newTopicParams}
+    //         handleTopicSelected={this.handleTopicSelected}
+    //         onHideMessagesView={this.handleHideMessagesView}
+    //         onError={this.handleError}
+    //         onNewTopicCreated={this.handleNewTopicCreated}
+    //         showContextMenu={this.handleShowContextMenu}
+    //         onChangePermissions={this.handleChangePermissions}
+    //         onNewChat={this.handleNewChatInvitation}
+    //         sendMessage={this.handleSendMessage}
+    //         onVideoCallClosed={this.handleCallClose}
+    //       /> : null} */}
+    // </div>
+    // );
   }
 };
 
 export default injectIntl(TinodeWeb);
+// export default TinodeWeb

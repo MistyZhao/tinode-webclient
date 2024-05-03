@@ -9,7 +9,7 @@ const AudioRecorder = React.lazy(_ => import('./audio-recorder.jsx'));
 
 import { KEYPRESS_DELAY } from '../config.js';
 import { filePasted } from '../lib/blob-helpers.js';
-import { replyFormatter } from '../lib/formatters.js';
+import { replyFormatter } from '../lib/formatters.jsx';
 
 const messages = defineMessages({
   messaging_disabled: {

@@ -8,7 +8,7 @@ import UnreadBadge from './unread-badge.jsx';
 
 import { Drafty } from 'tinode-sdk';
 
-import { previewFormatter } from '../lib/formatters.js';
+import { previewFormatter } from '../lib/formatters.jsx';
 import { deliveryMarker } from '../lib/utils.js';
 
 class Contact extends React.Component {

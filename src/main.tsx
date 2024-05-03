@@ -29,7 +29,9 @@ import '@/assets/styles/tailwind.css';
 import { ConfigProvider } from 'antd';
 // import { antCompConfig, antThemeConfig } from '@/config';
 import { StyleProvider, legacyLogicalPropertiesTransformer } from '@ant-design/cssinjs';
+import { BrowserRouter } from 'react-router-dom';
 
+import  App from "./App.tsx"
 // Allow loading translation strings for just one language.
 const messageLoader = {
   'de': _ => import('./i18n.min/de.json'),
@@ -69,7 +71,11 @@ document.getElementsByTagName('html')[0].setAttribute('lang', htmlLang);
 const root = createRoot(document.getElementById('root')!);
 messageLoader[htmlLang]().then(messages =>
   root.render(
-    <IntlProvider locale={language} messages={messages} textComponent={React.Fragment}>
-      <TinodeWeb />
-    </IntlProvider>
+    // <IntlProvider locale={language} messages={messages} textComponent={React.Fragment}>
+    //   <TinodeWeb />
+    // </IntlProvider>
+
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
 ));

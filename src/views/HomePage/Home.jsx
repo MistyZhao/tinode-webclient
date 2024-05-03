@@ -358,4 +358,4 @@ class Home extends React.PureComponent {
     }
 };
 
-export default injectIntl(Home);
+export default Home;

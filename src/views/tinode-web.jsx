@@ -24,8 +24,8 @@ import {
 
 import { Drafty, Tinode } from 'tinode-sdk';
 
-// import Home from "./HomePage/index.tsx"
-import HomeView from "./HomePage/Home.jsx"
+import Home from "./HomePage/index.tsx"
+// import HomeView from "./HomePage/Home.jsx"
 
 // import Alert from '../widgets/alert.jsx';
 // import ContextMenu from '../widgets/context-menu.jsx';
@@ -54,6 +54,7 @@ import LocalStorageUtil from '../lib/local-storage.js';
 import HashNavigation from '../lib/navigation.js';
 import { secondsToTime } from '../lib/strformat.js'
 import { updateFavicon } from '../lib/utils.js';
+import HomeView from './layout.js';
 
 // Sound to play on message received.
 const POP_SOUND = new Audio('audio/msg.m4a');
@@ -2084,7 +2085,8 @@ class TinodeWeb extends React.Component {
 
       
     } else if (window.location.pathname === '/home') {
-      return <HomeView  tinode={this.tinode}
+      return <div>
+      <HomeView  tinode={this.tinode}
       connected={this.state.connected}
       ready={this.state.ready}
       online={this.state.topicSelectedOnline}
@@ -2129,7 +2131,7 @@ class TinodeWeb extends React.Component {
       onNewChat={this.handleNewChatInvitation}
       sendMessage={this.handleSendMessage}
       onVideoCallClosed={this.handleCallClose} />
-
+</div>
     } else {
       return <h1>其他页面</h1>;
     }
